@@ -1,11 +1,12 @@
 import { UserModel } from "../models/user.js";
+import { loginValidator, registerValidator } from "../models/user.js";
 
 
 export const register = async (req, res, next) => {
     try {
         //Registering new user
         const
-            { lastName, firstName, username, email, password } = req.body;
+            { lastName, firstName, username, email, password } = registerValidator.validate(req.body);
         // Checking all the missing fields
         if (!firstName || !lastName || !username || !email || !password) {
             return res.status(400)
@@ -40,7 +41,7 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password } = loginValidator.validate(req.body);
         if (!email || !password) {
             return res
                 .status(400)
@@ -91,6 +92,7 @@ export const passwordForgot = async (req, res, next) => {
 
         let transporter = nodemailer.createTransport({
             host: "smtp-mail.outlook.com",
+            port: 587,
             auth: {
                 user: AUTH_EMAIL,
                 pass: AUTH_PASSWORD,

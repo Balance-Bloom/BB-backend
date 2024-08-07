@@ -12,7 +12,6 @@ const forumSchema = new Schema({
     favourite: { type: Boolean, default: false },
     publishedAt: { type: Date, default: Date.now() },
     updatedAt: { type: Date, default: Date.now() }
-
 })
 
 export const ForumModel = model('forum', forumSchema);
