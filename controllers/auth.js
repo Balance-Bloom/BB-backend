@@ -1,32 +1,36 @@
 import { UserModel } from "../models/user.js";
 import { loginValidator, registerValidator } from "../models/user.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt"
 
 
 export const register = async (req, res, next) => {
     try {
         //Registering new user
         const
-            { lastName, firstName, username, email, password } = registerValidator.validate(req.body);
+            { lastName, firstName, username, email, password } = req.body;
         // Checking all the missing fields
         if (!firstName || !lastName || !username || !email || !password) {
             return res.status(400)
                 .json({ error: `Please enter all the requiured fields` })
         }
-        // Checking all the missing fields
+        // Checking if the user exist
         const doesUserAlreadyExist = await UserModel.findOne({ email });
         if (doesUserAlreadyExist) {
             return res.status(400).json({ error: `A user with the email [${email}] already exist. Try Login` })
         }
         const hashedPassword = bcrypt.hashSync(password, 12);
         const newUsers = UserModel.create({ lastName, firstName, username, email, password: hashedPassword })
-
         //Save the user
-        await newUsers.save();
+        const result = await newUsers.save();
+
+        result._doc.password = undefined;
+        res.status(201).json({ ...result._doc })
 
         //Assign JWT
         const token = jwt.sign({ _id: newUsers._id },
             process.env.JWT_SECRET,
-            { expiresIn: '48h' })
+            { expiresIn: '1d' })
 
         // Return success response
         return res.status(201).json({
@@ -41,7 +45,7 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
     try {
-        const { username, email, password } = loginValidator.validate(req.body);
+        const { username, email, password } = req.body;
         if (!email || !password) {
             return res
                 .status(400)
@@ -58,7 +62,7 @@ export const login = async (req, res, next) => {
         if (!doesPasswordMatch) return res.status(400).json({ error: `Invalid email or password` })
 
         const payload = { _id: doesUserExist._id };
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '48h' })
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' })
         return res.status(201).json({
             message: "Login successfully",
             token,
@@ -123,18 +127,18 @@ export const passwordReset = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const id = decoded.id;
         const hashedPassword = bcrypt.hashSync(password, 12);
-        await UserModel.findByIdAndUpdate({_id: id}, {password: hashedPassword})
-// Return status response
+        await UserModel.findByIdAndUpdate({ _id: id }, { password: hashedPassword })
+        // Return status response
         return res.status(201).json({
             status: 'success',
             message: "Password Updated"
-        })   
+        })
     }
     catch (error) {
         return res.status(422).json({
             status: 'failed',
             message: "Invalid Token"
-        }) 
+        })
     }
 }
 
@@ -169,6 +173,7 @@ export const discordLogin = async (req, res, next) => {
 export const logout = async (req, res, next) => {
     try {
         res.clearCookie('token')
+        res.cookie('jwt','',{ expiresIn: '1' } )
         return res.status(201).json({
             status: 'success',
             message: "Logout successful"

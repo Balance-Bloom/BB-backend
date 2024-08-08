@@ -15,10 +15,7 @@ const userSchema = new Schema({
     notification: [{ type: Types.ObjectId, ref: 'notification' }],
     appointment: [{ type: Types.ObjectId, ref: 'booking' }],
     journal: [{ type: Types.ObjectId, ref: 'journal' }],
-    messages: [{ type: Types.ObjectId, ref: 'message' }],
-    incidentType: { type: String, enum: ['Criminal', 'Non-Criminal'] },
-
-
+    messages: [{ type: Types.ObjectId, ref: 'message' }]
 }, {
     timestamps: true
 })
@@ -26,7 +23,9 @@ const userSchema = new Schema({
 export const UserModel = model('User', userSchema)
 
 export const registerValidator = joi.object({
-    name: joi.string().required(),
+    firstName: joi.string().required(),
+    lastName: joi.string().required(),
+    username: joi.string().required(),
     email: joi.string().email().required(),
     password: joi.string().required(),
     confirmPassword: joi.string().valid(joi.ref('password')).required(),

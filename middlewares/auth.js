@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken"
 
 export const isAuthenticated = (req, res, next) => {
     try {
-        const authHeader = req?.headers?.authorization || req?.headers?.Authorization;
-        if (authHeader && authHeader.startsWith("Bearer")) {
+        const authHeader = req.headers.authorization || req.headers.Authorization;
+        if (authHeader && authHeader.startsWith("Bearer ")) {
             // Extract token from headers
             const token = authHeader.split(' ')[1];
             // Verify the token to get user and append to request
