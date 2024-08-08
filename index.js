@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import 'dotenv/config';
+import expressOasGenerator from "@mickeymond/express-oas-generator"
 import authRouter from "./routes/auth.js";
 import bookingRouter from "./routes/bookings.js";
 import forumRouter from "./routes/forum.js";
@@ -13,6 +14,11 @@ console.log("BnB database connected and ready")
 
 // Create app
 const app = express();
+expressOasGenerator.handleResponses(app, {
+    alwaysServeDocs: true,
+    tags: ['profile'],
+    mongooseModels: mongoose.modelNames(),
+})
 
 // Use middleware
 app.use(express.json());
@@ -22,6 +28,9 @@ app.use(cors())
 app.use('/api/v1', authRouter)
 app.use('/api/v1', bookingRouter);
 app.use('/api/v1', forumRouter)
+
+expressOasGenerator.handleRequests();
+app.use((req, res) => res.redirect('/api-docs/'));
 
 // Listen for incoming request
 const port = process.env.PORT || 3443

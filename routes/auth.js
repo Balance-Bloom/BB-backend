@@ -10,7 +10,7 @@ authRouter.post('/register', register);
 authRouter.post('/login', login);
 authRouter.post('/forgot-password', passwordForgot);
 authRouter.post('/resetPassword/:token', passwordReset);
-authRouter.post('/logout',isAuthenticated, logout);
+authRouter.get('/logout',isAuthenticated, logout);
 
 
 
