@@ -1,8 +1,11 @@
+import { AssessmentModel } from "../models/assessments.js";
 import { BookingModel } from "../models/bookings.js";
 import { ChatModel } from "../models/chat.js";
 import { DoctorModel } from "../models/doctors.js";
 import { MessageModel } from "../models/message.js";
 import { UserModel } from "../models/user.js";
+
+import { createNotification } from "./notification.js";
 
 export const getBookings = async (req, res, next) => {
     try {
@@ -43,6 +46,8 @@ export const addBookings = async (req, res, next) => {
             user: userId,
             doctor
         })
+        // Create a notification for the user
+        await createNotification(userId, 'appointmentReminder', `You have an upcoming appointment with ${doctor} on ${appointmentDate} at ${appointmentTime}`);
         await newBookings.save()
         res.status(200).json({ message: 'Appointments created', booking: newBookings })
     } catch (error) {
@@ -202,3 +207,4 @@ export const getMessages = async (req, res) => {
         res.status(500).json(error);
     }
 };
+
