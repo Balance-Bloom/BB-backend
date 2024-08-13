@@ -262,13 +262,13 @@ export const getUser = async (req, res, next) => {
 export const sendVerificationEmail = async (user, res, token) => {
     const { _id, email, username } = user;
     const otp = generateOTP();
-  
+
     //   mail options
     const mailOptions = {
-      from: AUTH_EMAIL,
-      to: email,
-      subject: "Email Verification",
-      html: `<div
+        from: AUTH_EMAIL,
+        to: email,
+        subject: "Email Verification",
+        html: `<div
       style='font-family: Arial, sans-serif; font-size: 20px; color: #333; background-color: #f7f7f7; padding: 20px; border-radius: 5px;'>
       <h3 style="color: rgb(8, 56, 188)">Please verify your email address</h3>
       <hr>
@@ -285,35 +285,35 @@ export const sendVerificationEmail = async (user, res, token) => {
       </div>
   </div>`,
     };
-  
+
     try {
-      const hashedToken = await hashString(String(otp));
-  
-      const newVerifiedEmail = await VerificationModel.create({
-        userId: _id,
-        token: hashedToken,
-        createdAt: Date.now(),
-        expiresAt: Date.now() + 120000,
-      });
-  
-      if (newVerifiedEmail) {
-        createTransport
-          .sendMail(mailOptions)
-          .then(() => {
-            res.status(201).send({
-              success: "PENDING",
-              message:
-                "OTP has been sent to your account. Check your email and verify your email.",
-              user,
-              token,
-            });
-          })
-      }
+        const hashedToken = await hashString(String(otp));
+
+        const newVerifiedEmail = await VerificationModel.create({
+            userId: _id,
+            token: hashedToken,
+            createdAt: Date.now(),
+            expiresAt: Date.now() + 120000,
+        });
+
+        if (newVerifiedEmail) {
+            createTransport
+                .sendMail(mailOptions)
+                .then(() => {
+                    res.status(201).send({
+                        success: "PENDING",
+                        message:
+                            "OTP has been sent to your account. Check your email and verify your email.",
+                        user,
+                        token,
+                    });
+                })
+        }
     } catch (error) {
-      console.log(error);
-      res.status(404).json({ message: "Something went wrong" });
+        console.log(error);
+        res.status(404).json({ message: "Something went wrong" });
     }
-  };
+};
 
 export const logout = async (req, res, next) => {
     try {

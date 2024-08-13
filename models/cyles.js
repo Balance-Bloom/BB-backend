@@ -14,7 +14,7 @@ const cycleSchema = new Schema({
     fertileWindow: { type: Number },
     pregnancyTest: { type: Boolean, default: true },//Pregnancy test result (if applicable)
     basalBodyTemperature: { type: Number }, //Basal body temperature data
-    cervicalMucus: { type: String }, // Cervical mucus observations
+    cervicalMucus: { type: Boolean }, // Cervical mucus observations
 })
 
 export const CycleModel = model('cycle', cycleSchema)

@@ -1,5 +1,5 @@
 import { Schema, model, Types } from "mongoose";
-import joi from "joi";
+
 
 const userSchema = new Schema({
     firstName: { type: String, required: true },
@@ -21,18 +21,3 @@ const userSchema = new Schema({
 })
 
 export const UserModel = model('User', userSchema)
-
-export const registerValidator = joi.object({
-    firstName: joi.string().required(),
-    lastName: joi.string().required(),
-    username: joi.string().required(),
-    email: joi.string().email().required(),
-    password: joi.string().required(),
-    confirmPassword: joi.string().valid(joi.ref('password')).required(),
-})
-
-export const loginValidator = joi.object({
-    username: joi.string().alphanum(),
-    email: joi.string().email(),
-    password: joi.string().required(),
-});
