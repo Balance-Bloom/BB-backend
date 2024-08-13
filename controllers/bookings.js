@@ -1,4 +1,3 @@
-import { AssessmentModel } from "../models/assessments.js";
 import { BookingModel } from "../models/bookings.js";
 import { ChatModel } from "../models/chat.js";
 import { DoctorModel } from "../models/doctors.js";

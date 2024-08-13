@@ -8,6 +8,7 @@ import bookingRouter from "./routes/bookings.js";
 import forumRouter from "./routes/forum.js";
 import periodRouter from "./routes/cycle.js";
 import assessmentRouter from "./routes/assessment.js";
+import notificationRouter from "./routes/notification.js";
 
 
 //Make database connection
@@ -18,7 +19,7 @@ console.log("BnB database connected and ready")
 const app = express();
 expressOasGenerator.handleResponses(app, {
     alwaysServeDocs: true,
-    tags: ['profile','booking', 'forum', 'cycle'],
+    tags: ['auth','booking', 'forum', 'cycle','assessment','notification'],
     mongooseModels: mongoose.modelNames(),
 })
 
@@ -32,6 +33,7 @@ app.use('/api/v1', bookingRouter);
 app.use('/api/v1', forumRouter)
 app.use('/api/v1', periodRouter)
 app.use('/api/v1', assessmentRouter)
+app.use('/api/v1', notificationRouter)
 
 expressOasGenerator.handleRequests();
 app.use((req, res) => res.redirect('/api-docs/'));
