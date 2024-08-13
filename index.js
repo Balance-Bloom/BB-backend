@@ -6,6 +6,8 @@ import expressOasGenerator from "@mickeymond/express-oas-generator"
 import authRouter from "./routes/auth.js";
 import bookingRouter from "./routes/bookings.js";
 import forumRouter from "./routes/forum.js";
+import periodRouter from "./routes/cycle.js";
+import assessmentRouter from "./routes/assessment.js";
 
 
 //Make database connection
@@ -16,7 +18,7 @@ console.log("BnB database connected and ready")
 const app = express();
 expressOasGenerator.handleResponses(app, {
     alwaysServeDocs: true,
-    tags: ['profile'],
+    tags: ['profile','booking', 'forum', 'cycle'],
     mongooseModels: mongoose.modelNames(),
 })
 
@@ -28,6 +30,8 @@ app.use(cors())
 app.use('/api/v1', authRouter)
 app.use('/api/v1', bookingRouter);
 app.use('/api/v1', forumRouter)
+app.use('/api/v1', periodRouter)
+app.use('/api/v1', assessmentRouter)
 
 expressOasGenerator.handleRequests();
 app.use((req, res) => res.redirect('/api-docs/'));
