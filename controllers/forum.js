@@ -95,7 +95,7 @@ export const deletePost = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        await ForumModel.findOneAndDelete({ _id: id});
+        await ForumModel.findOneAndDelete({ _id: id });
 
         res.status(200).json({
             success: true,
@@ -104,5 +104,40 @@ export const deletePost = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         res.status(404).json({ message: error.message });
+    }
+}
+
+export const likePost = async (req, res, next) => {
+    try {
+        const postId = req.params.postId;
+        const post = await ForumModel.findById(postId);
+
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        post.likes += 1;
+        await post.save();
+
+        res.json(post);
+    } catch (error) {
+        res.status(500).json({ error: 'Error liking post:Internal Server Error' });
+    }
+}
+
+export const commentPost = async (req, res, next) => {
+    try {
+        const postId = req.params.postId;
+        const { text } = req.body;
+        const post = await ForumModel.findById(postId);
+
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        post.comments.push({ text });
+        await post.save();
+
+        res.json(post);
+    } catch (error) {
+        res.status(500).json({ error: 'Error adding comment:Internal Server Error' });
     }
 }
