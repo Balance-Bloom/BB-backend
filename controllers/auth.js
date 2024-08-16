@@ -16,27 +16,44 @@ export const register = async (req, res, next) => {
             return res.status(400)
                 .json({ error: `Please enter all the requiured fields` })
         }
+        //Email validation
+        const emailReg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
+        if (!emailReg.test(email))
+            return res
+                .status(400)
+                .json({ error: `Please enter a valid email address` });
+
+        //Usename validation
+        if (username.length <= 4) return res
+            .status(400)
+            .json({ error: `Username should be more than 5 characters` })
+
         const newEmail = email.toLowerCase()
         // Checking if the user exist
         const doesUserAlreadyExist = await UserModel.findOne({ email: newEmail });
         if (doesUserAlreadyExist) {
             return res.status(400).json({ error: `A user with the email [${email}] already exist. Try Login` })
         }
-        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,15}$/;
-        if (!regex.test(password))
-            return res
-                .status(400)
-                .json({ error: `Please enter a strong password` });
-        if ((password.trim()).lenght < 6) {
-            return res.status(422).json({ error: `Password should be at least 6 characters` })
-        }
+
+        if (password.length <= 6) return res
+            .status(400)
+            .json({ error: `Password must be at least 6 characters long` })
+        
         if (password != password2) {
             return res.status(422).json({ error: `Passwords do not match` })
         }
+        // const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,15}$/;
+        // if (!regex.test(password))
+        //     return res
+        //         .status(400)
+        //         .json({ error: `Please enter a strong password` });
+
+        
         const hashedPassword = bcrypt.hashSync(password, 12);
         const newUsers = UserModel.create({ lastName, firstName, username, email: newEmail, password: hashedPassword })
         //Save the user
-        await newUsers.save();
+        //await newUsers.save();
 
         //Assign JWT
         const token = jwt.sign({ _id: newUsers._id },
@@ -45,7 +62,7 @@ export const register = async (req, res, next) => {
 
         // Return success response
         return res.status(201).json({
-            message: `Registration for ${newUsers.username} with ${token} successful`,
+            message: `Registration for ${username} with ${token} successful`,
         })
     } catch (error) {
         next(error)
@@ -96,6 +113,13 @@ export const login = async (req, res, next) => {
                 .status(400)
                 .json({ error: `Please enter all the required fields` });
         }
+
+        const emailReg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
+        if (!emailReg.test(email))
+            return res
+                .status(400)
+                .json({ error: `Please enter a valid email address` });
         const newEmail = email.toLowerCase()
         const doesUserExist = await UserModel.findOne({ $or: [{ email: newEmail }, { username: username }] })
 
@@ -107,15 +131,14 @@ export const login = async (req, res, next) => {
 
         if (!doesPasswordMatch) return res.status(400).json({ error: `Invalid email or password` })
 
-        const { _id: id } = doesUserExist;
-        const token = jwt.sign(id, process.env.JWT_SECRET, { expiresIn: '1d' })
+        const payload = { _id: doesUserExist._id };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' })
         return res.status(201).json({
             message: "Login successfully",
             token,
             user: {
                 name: doesUserExist.username,
                 email: doesUserExist.email,
-                role: doesUserExist.role
             }
         })
     }
