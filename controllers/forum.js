@@ -7,7 +7,7 @@ export const getPosts = async (req, res, next) => {
 
         // pagination
         const page = Number(req.query.page) || 1;
-        const limit = Number(req.query.limit) || 5;
+        const limit = Number(req.query.limit) || 6;
         const skip = (page - 1) * limit;
     } catch (error) {
         res.status(404).json({ message: error.message });
@@ -16,18 +16,19 @@ export const getPosts = async (req, res, next) => {
 
 export const createPost = async (req, res, next) => {
     try {
-        const { title, category, content } = req.body;
+        const { title, category, content, subCategory, author } = req.body;
         if (!title || !category || !content) {
             return next("Please enter all the required fields and choose image", 422)
         }
         const { image } = req.file.filename;
-        if (image.size > 2000000) {
-            return next("Thumbnail too big File should be less than 2mb")
-        }
+        //if (image.size > 2000000) {
+        //return next("Thumbnail too big File should be less than 2mb")}
+        
         const post = await ForumModel.create({
             title,
             category,
             content,
+            subCategory,
             image: req.file.filename,
             author
         })
